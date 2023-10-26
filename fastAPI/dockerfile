@@ -17,6 +17,10 @@ RUN apt-get update && apt-get install -yq software-properties-common  \
     libbluetooth-dev \
     tk-dev \
     uuid-dev \
+    libavformat-dev \
+    libavdevice-dev \
+    liblzma-dev \
+    lzma \
     && \
     ln -fs /usr/share/zoneinfo/Asia/Seoul /etc/localtime && \
     dpkg-reconfigure --frontend noninteractive tzdata
@@ -38,6 +42,5 @@ WORKDIR /code
 
 COPY ./requirements.txt /code/requirements.txt
 
-RUN apt-get install -y libavformat-dev libavdevice-dev
 RUN pip3.11 install --upgrade pip
 RUN pip3.11 install  --no-cache-dir --upgrade -r /code/requirements.txt

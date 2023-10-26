@@ -336,7 +336,8 @@ async def run(session):
 
 @app.get("/")
 async def root():
-	base_url = "http://localhost:8088/janus"
+	base_url = "http://janus/janus" # docker
+	# base_url = "http://localhost:8088/janus" # janus
 	session = JanusSession(
 		url=base_url,
 	)
@@ -351,8 +352,8 @@ async def say_hello(name: str):
 
 @socket_manager.on('image')
 async def handle_join(sid, *args, **kwargs):
-	# print("image")
-	# print(args[0])
+	print("image")
+	print(args[0])
 	image_data = base64.b64decode(args[0].split(',')[1])
 	image = Image.open(io.BytesIO(image_data))
 	t_img = transform(image)
