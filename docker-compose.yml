@@ -1,0 +1,29 @@
+version: "3.8"
+services:
+  web_server:
+    user: "root"
+    image: httpd:alpine
+    restart: always
+    ports:
+       - 80:80
+    volumes:
+       - ./janus-web/janus:/usr/local/apache2/htdocs
+  janus:
+    user: root
+    build: ./janus-server/
+    restart: always
+    volumes:
+      - ./janus-server/config/janus:/opt/janus/etc/janus
+    container_name: custom-janus
+    ports:
+      - 7088:7088
+      - 8088:8088
+      - 8188:8188
+      - 10000-10030:10000-10030/udp
+  fastapi:
+    build: ./fastAPI/
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8080 --reload
+    ports:
+      - 8080:8080
+    volumes:
+      - ./fastAPI:/code/app

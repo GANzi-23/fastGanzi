@@ -1,0 +1,102 @@
+<!--videosender.html-->
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Hello</title>
+  <title>Flask-SocketIO Test</title>
+     <style>
+     #video {
+      transform: rotateY(180deg);
+      -webkit-transform:rotateY(180deg); /* Safari and Chrome */
+      -moz-transform:rotateY(180deg); /* Firefox */
+
+     }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.4/socket.io.js" integrity="sha512-aMGMvNYu8Ue4G+fHa359jcPb1u+ytAF+P2SCb+PxrjCdO3n3ZTxJ30zuH39rimUggmTwmh2u7wvQsDTHESnmfQ==" crossorigin="anonymous"></script>
+</head>
+<body>
+	<video id="videoInput" style="display:none"></video>
+  <canvas id="videoOutput"></canvas>
+  <button id="streamButton">Send</button>
+    <img id="image" src="" alt="Real-time Image">
+
+{#new#}
+<div id="container">
+      <video autoplay playsinline id="videoElement"></video>
+      <canvas id="canvas" width="400" height="300"></canvas>
+    </div>
+
+    <div class= 'video'>
+      <img id="photo" width="400" height="300">
+    </div>
+  </body>
+</body>
+<script>
+	$(document).ready(function() {
+    // Connect to the Socket.IO server.
+    // The connection URL has the following format, relative to the current page:
+    //     http[s]://<domain>:<port>[/<namespace>]
+    var socket = io('http://localhost:8000', {
+  path: "/ws/socket.io"
+});
+  var w = 720, h = 480;
+
+
+    // Event handler for new connections.
+    // The callback function is invoked when a connection with the
+    // server is established.
+    socket.on('connect', function() {
+        socket.emit('my_event', {data: 'I\'m connected!'});
+    });
+    socket.on('update_image', (data) => {
+        // 이미지 데이터를 이미지 요소에 설정
+        console.log(data)
+        const image = document.getElementById('image');
+        image.src = `data:image/jpeg;base64,${btoa(String.fromCharCode(...new Uint8Array(data.image)))}`;
+    });
+
+    socket.on("processed_image", function (image) {
+  photo.setAttribute("src", image);
+});
+
+	navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+  var constraints = {audio: false, video: true};
+  var video = document.getElementById("videoInput");
+  video.width = w;
+  video.height = h;
+  function successCallback(stream){
+  	video.srcObject = stream;
+  	video.play();
+  }
+
+  function errorCallback(error){
+   	console.log(error);
+  }
+  navigator.getUserMedia(constraints, successCallback, errorCallback);
+	var canvas = document.getElementById("videoOutput");
+  canvas.width = w;
+  canvas.height = h;
+  var ctx = canvas.getContext("2d");
+  function processImage(){
+        ctx.drawImage(video, 0, 0, w, h);
+        setTimeout(processImage, 1);
+  }
+  processImage();
+
+  function stream(){
+    setInterval(sendImage,6000);
+    console.log("sendmsg");
+  }
+
+  function sendImage(){
+    var rawData = canvas.toDataURL("image/jpeg", 0.5);
+    socket.emit('image', rawData)
+  }
+  $('#streamButton').click(function() {
+    stream();
+  });
+
+});
+</script>
+</html>
