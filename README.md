@@ -27,3 +27,18 @@ localhost 에 접속하면 Demo Page 가 나오고 Demos -> Videoroom -> start -
 
 - 위 과정을 진행
 - localhost:8000 브라우저 창에 입력
+
+## 참고
+model 은 각자 다운받아 fastAPI 폴더에 넣어주기 
+
+fastAPI/app.py 
+```
+### 환경에 따라 수정할것
+
+### cuda 사용가능할경우 opt 에 gpu_ids 주석 [0] 있는 걸로 바꾸기, netG = netG.module 주석 풀기
+### path 에 있는 모델 수정 가능
+
+base_url = "http://janus/janus" # docker
+# base_url = "http://localhost:8088/janus" # Local
+
+```
