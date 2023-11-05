@@ -19,6 +19,7 @@
 	<video id="videoInput" style="display:none"></video>
   <canvas id="videoOutput"></canvas>
   <button id="streamButton">Send</button>
+  <button id="updateModelButton">Update Model</button>
     <img id="image" src="" alt="Real-time Image">
 
 {#new#}
@@ -96,6 +97,19 @@
   $('#streamButton').click(function() {
     stream();
   });
+  document.getElementById("updateModelButton").addEventListener("click", updateModel);
+  function updateModel() {
+      const newModelPath = "arcane.pth"; // 새로운 모델 경로를 지정하세요
+      fetch(`http://localhost:8000/model/${newModelPath}`)
+        .then(response => response.json())
+        .then(data => {
+          console.log(data.message); // 서버에서 반환한 응답 메시지 출력
+        })
+        .catch(error => {
+          console.error("Error:", error);
+        });
+    }
+
 
 });
 </script>
