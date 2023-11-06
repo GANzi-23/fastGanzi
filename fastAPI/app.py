@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Path
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi_socketio import SocketManager
 from models import pix2pix_model, networks
@@ -9,6 +9,7 @@ import numpy as np
 import torch
 from PIL import Image
 import io
+import os
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 print(f"Using {device} device")
@@ -30,7 +31,7 @@ opt = argparse.Namespace(
 
 netG = networks.define_G(opt.input_nc, opt.output_nc, opt.ngf, opt.netG, opt.norm, opt.use_dropout, opt.init_type, opt.init_gain, opt.gpu_ids, opt.activation, opt.squeeze)
 # netG = netG.module
-path = './300_net_G.pth'
+path = './pixar.pth'
 order_dict = torch.load(path)
 netG.load_state_dict(order_dict)
 netG.eval()
@@ -348,6 +349,85 @@ async def root():
 @app.get("/hello/{name}")
 async def say_hello(name: str):
 	return {"message": f"Hello {name}"}
+
+
+#model 변경
+@app.get("/model/{new_path}")
+async def update_model(new_path: str = Path(..., title="New_path")):
+    model_path = os.path.join(f"{new_path}")
+    
+    if model_path == "arcane.pth":
+        opt = argparse.Namespace(
+            input_nc=3,
+            output_nc=3,
+            ngf=64,
+            netG='unet_256',
+            norm='batch',  # norm='instance'
+            use_dropout=False,
+            init_type='normal',
+            init_gain=0.02,
+            gpu_ids=[],
+            activation='swish',
+            squeeze=4
+        )
+
+        netG = networks.define_G(opt.input_nc, opt.output_nc, opt.ngf, opt.netG, opt.norm, opt.use_dropout,
+                                 opt.init_type, opt.init_gain, opt.gpu_ids, opt.activation, opt.squeeze)
+        
+        path = model_path
+        order_dict = torch.load(path)
+        netG.load_state_dict(order_dict)
+        netG.eval()
+        netG = netG.to(device)
+    elif model_path == "pixar.pth":
+        opt = argparse.Namespace(
+            input_nc=3,
+            output_nc=3,
+            ngf=64,
+            netG='unet_256',
+            norm='instance',  # <-- 쉼표가 빠져 있었습니다.
+            use_dropout=False,
+            init_type='normal',
+            init_gain=0.02,
+            gpu_ids=[],
+            activation='swish',
+            squeeze=4
+        )
+
+        netG = networks.define_G(opt.input_nc, opt.output_nc, opt.ngf, opt.netG, opt.norm, opt.use_dropout,
+                                 opt.init_type, opt.init_gain, opt.gpu_ids, opt.activation, opt.squeeze)
+        
+        path = model_path
+        order_dict = torch.load(path)
+        netG.load_state_dict(order_dict)
+        netG.eval()
+        netG = netG.to(device)
+    elif model_path == "disney.pth":
+        opt = argparse.Namespace(
+            input_nc=3,
+            output_nc=3,
+            ngf=64,
+            netG='unet_256',
+            norm='batch',  # norm='instance'
+            use_dropout=False,
+            init_type='normal',
+            init_gain=0.02,
+            gpu_ids=[],
+            activation='swish',
+            squeeze=4
+        )
+
+        netG = networks.define_G(opt.input_nc, opt.output_nc, opt.ngf, opt.netG, opt.norm, opt.use_dropout,
+                                 opt.init_type, opt.init_gain, opt.gpu_ids, opt.activation, opt.squeeze)
+        
+        path = model_path
+        order_dict = torch.load(path)
+        netG.load_state_dict(order_dict)
+        netG.eval()
+        netG = netG.to(device)
+
+    # 업데이트가 성공적으로 수행되었음을 클라이언트에게 응답으로 반환
+    return {"message": f"Model path updated to: {new_path}"}
 
 
 @socket_manager.on('image')
