@@ -85,12 +85,12 @@
   processImage();
 
   function stream(){
-    setInterval(sendImage,3000);
+    setInterval(sendImage,2000);
     console.log("sendmsg");
   }
 
   function sendImage(){
-    var rawData = canvas.toDataURL("image/jpeg", 0.5);
+    var rawData = canvas.toDataURL("image/jpeg", 1);
     socket.emit('image', rawData)
   }
   $('#streamButton').click(function() {
